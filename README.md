@@ -13,7 +13,6 @@ Redesign and migrate a legacy on-premises application to AWS while improving con
 - RDS MySQL
 - Security Groups
 - CloudWatch
-- CloudTrail
 - KMS
 - IAM
 - CloudFormation IaC Generator
