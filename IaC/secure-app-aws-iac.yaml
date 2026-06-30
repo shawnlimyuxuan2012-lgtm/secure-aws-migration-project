@@ -1,0 +1,400 @@
+---
+Metadata:
+  AWSToolsMetrics:
+    IaC_Generator: "arn:aws:cloudformation:us-east-1:912444242923:generatedTemplate/ab84e494-1af8-415f-96e2-674947f8907f"
+Parameters:
+  KeyName:
+    Default: "vockey"
+    Type: "String"
+    Description: "Name of an existing EC2 KeyPair to enable SSH access"
+Resources:
+  EC2Instance:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Instance"
+    DeletionPolicy: "Retain"
+    Properties:
+      Tenancy: "default"
+      PrivateIpAddress: "10.0.3.99"
+      MetadataOptions:
+        HttpPutResponseHopLimit: 2
+        HttpProtocolIpv6: "disabled"
+        HttpTokens: "required"
+        InstanceMetadataTags: "disabled"
+        HttpEndpoint: "enabled"
+      InstanceInitiatedShutdownBehavior: "stop"
+      BlockDeviceMappings:
+      - Ebs:
+          SnapshotId: "snap-0d5fc98f11067faaf"
+          VolumeType: "gp3"
+          Iops: 3000
+          VolumeSize: 8
+          Encrypted: false
+          DeleteOnTermination: true
+        DeviceName: "/dev/xvda"
+      PrivateDnsNameOptions:
+        EnableResourceNameDnsARecord: false
+        HostnameType: "ip-name"
+        EnableResourceNameDnsAAAARecord: false
+      SecurityGroupIds:
+      - "sg-02096c78033e4e71a"
+      EbsOptimized: false
+      DisableApiTermination: false
+      SourceDestCheck: true
+      PlacementGroupName: ""
+      NetworkInterfaces:
+      - Ipv6Addresses: []
+        SecondaryPrivateIpAddressCount: 0
+        NetworkInterfaceId: "eni-0063c40edf32bced3"
+        DeviceIndex: "0"
+      ImageId: "ami-08f44e8eca9095668"
+      InstanceType: "t2.micro"
+      Monitoring: false
+      Tags:
+      - Value: "secure-app-server"
+        Key: "Name"
+      CreditSpecification:
+        CPUCredits: "standard"
+  EC2SubnetVs:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Subnet"
+    DeletionPolicy: "Retain"
+    Properties:
+      MapPublicIpOnLaunch: false
+      EnableDns64: false
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      AvailabilityZoneId: "use1-az4"
+      PrivateDnsNameOptionsOnLaunch:
+        EnableResourceNameDnsARecord: false
+        HostnameType: "ip-name"
+        EnableResourceNameDnsAAAARecord: false
+      AvailabilityZone: "us-east-1b"
+      CidrBlock: "10.0.144.0/20"
+      Ipv6Native: false
+      Tags:
+      - Value: "secure-app-subnet-private2-us-east-1b"
+        Key: "Name"
+  EC2Volume:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Volume"
+    DeletionPolicy: "Retain"
+    Properties:
+      MultiAttachEnabled: false
+      SnapshotId: "snap-0d5fc98f11067faaf"
+      VolumeType: "gp3"
+      Encrypted: false
+      Size: 8
+      AutoEnableIO: true
+      AvailabilityZoneId: "use1-az2"
+      AvailabilityZone: "us-east-1a"
+      Throughput: 125
+      Iops: 3000
+      Tags: []
+  EC2Subnet:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Subnet"
+    DeletionPolicy: "Retain"
+    Properties:
+      MapPublicIpOnLaunch: false
+      EnableDns64: false
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      AvailabilityZoneId: "use1-az4"
+      PrivateDnsNameOptionsOnLaunch:
+        EnableResourceNameDnsARecord: false
+        HostnameType: "ip-name"
+        EnableResourceNameDnsAAAARecord: false
+      AvailabilityZone: "us-east-1b"
+      CidrBlock: "10.0.16.0/20"
+      Ipv6Native: false
+      Tags:
+      - Value: "secure-app-subnet-public2-us-east-1b"
+        Key: "Name"
+  EC2SecurityGroup:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::SecurityGroup"
+    DeletionPolicy: "Retain"
+    Properties:
+      GroupDescription: "Allow web traffic to EC2"
+      GroupName: "ec2-sg"
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      SecurityGroupIngress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "tcp"
+        FromPort: 80
+        ToPort: 80
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "tcp"
+        FromPort: 443
+        ToPort: 443
+      SecurityGroupEgress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "-1"
+        FromPort: -1
+        ToPort: -1
+  CloudWatchAlarmEC2HighCPUAlarm:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::CloudWatch::Alarm"
+    DeletionPolicy: "Retain"
+    Properties:
+      ComparisonOperator: "GreaterThanThreshold"
+      TreatMissingData: "missing"
+      Dimensions:
+      - Value: "i-0d7b41d8ab97f824b"
+        Name: "InstanceId"
+      Period: 300
+      EvaluationPeriods: 1
+      Namespace: "AWS/EC2"
+      OKActions: []
+      AlarmActions: []
+      MetricName: "CPUUtilization"
+      ActionsEnabled: true
+      AlarmName: "EC2-HighCPU-Alarm"
+      Statistic: "Average"
+      InsufficientDataActions: []
+      DatapointsToAlarm: 1
+      Tags: []
+      Threshold: 80
+  RDSDBInstance:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::RDS::DBInstance"
+    DeletionPolicy: "Retain"
+    Properties:
+      DatabaseInsightsMode: "standard"
+      StorageEncrypted: true
+      AssociatedRoles: []
+      Port: "3306"
+      AdditionalStorageVolumes: []
+      ProcessorFeatures: []
+      StorageThroughput: 0
+      PreferredBackupWindow: "03:59-04:29"
+      MonitoringInterval: 0
+      DBParameterGroupName: "default.mysql8.4"
+      NetworkType: "IPV4"
+      DedicatedLogVolume: false
+      CopyTagsToSnapshot: true
+      MultiAZ: false
+      Engine: "mysql"
+      Tags: []
+      EngineLifecycleSupport: "open-source-rds-extended-support-disabled"
+      LicenseModel: "general-public-license"
+      EngineVersion: "8.4.8"
+      StorageType: "gp2"
+      KmsKeyId: "arn:aws:kms:us-east-1:912444242923:key/4d487034-beed-4635-ab20-b4fe0f1b5f27"
+      DBInstanceClass: "db.t3.micro"
+      AvailabilityZone: "us-east-1a"
+      OptionGroupName: "default:mysql-8-4"
+      PreferredMaintenanceWindow: "fri:08:25-fri:08:55"
+      EnablePerformanceInsights: false
+      AutoMinorVersionUpgrade: true
+      DBSubnetGroupName: "default-vpc-04eeae8bad2c31dbb"
+      DeletionProtection: false
+      DBInstanceIdentifier: "secure-app-db"
+      AllocatedStorage: "20"
+      BackupTarget: "region"
+      CACertificateIdentifier: "rds-ca-rsa2048-g1"
+      ManageMasterUserPassword: false
+      MasterUserSecret: {}
+      VPCSecurityGroups:
+      - "sg-07046c9d1b7d936c6"
+      DBSecurityGroups: []
+      MasterUsername: "admin"
+      MaxAllocatedStorage: 1000
+      EnableIAMDatabaseAuthentication: false
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 1
+      EnableCloudwatchLogsExports: []
+  EC2SubnetDO:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Subnet"
+    DeletionPolicy: "Retain"
+    Properties:
+      MapPublicIpOnLaunch: false
+      EnableDns64: false
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      AvailabilityZoneId: "use1-az2"
+      PrivateDnsNameOptionsOnLaunch:
+        EnableResourceNameDnsARecord: false
+        HostnameType: "ip-name"
+        EnableResourceNameDnsAAAARecord: false
+      AvailabilityZone: "us-east-1a"
+      CidrBlock: "10.0.128.0/20"
+      Ipv6Native: false
+      Tags:
+      - Value: "secure-app-subnet-private1-us-east-1a"
+        Key: "Name"
+  KMSKey:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::KMS::Key"
+    DeletionPolicy: "Retain"
+    Properties:
+      Origin: "AWS_KMS"
+      MultiRegion: false
+      Description: "Default key that protects my RDS database volumes when no other\
+        \ key is defined"
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+        - Condition:
+            StringEquals:
+              kms:ViaService: "rds.us-east-1.amazonaws.com"
+              kms:CallerAccount: "912444242923"
+          Resource: "*"
+          Action:
+          - "kms:Encrypt"
+          - "kms:Decrypt"
+          - "kms:ReEncrypt*"
+          - "kms:GenerateDataKey*"
+          - "kms:CreateGrant"
+          - "kms:ListGrants"
+          - "kms:DescribeKey"
+          Effect: "Allow"
+          Principal:
+            AWS: "*"
+          Sid: "Allow access through RDS for all principals in the account that are\
+            \ authorized to use RDS"
+        - Resource: "*"
+          Action:
+          - "kms:Describe*"
+          - "kms:Get*"
+          - "kms:List*"
+          - "kms:RevokeGrant"
+          Effect: "Allow"
+          Principal:
+            AWS: "arn:aws:iam::912444242923:root"
+          Sid: "Allow direct access to key metadata to the account"
+        Id: "auto-rds-2"
+      KeySpec: "SYMMETRIC_DEFAULT"
+      Enabled: true
+      EnableKeyRotation: true
+      KeyUsage: "ENCRYPT_DECRYPT"
+      Tags: []
+  EC2VPC:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::VPC"
+    DeletionPolicy: "Retain"
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      InstanceTenancy: "default"
+      EnableDnsHostnames: true
+      Tags:
+      - Value: "secure-app-vpc"
+        Key: "Name"
+  RDSDBSubnetGroupDefaultvpc04eeae8bad2c31dbb:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::RDS::DBSubnetGroup"
+    DeletionPolicy: "Retain"
+    Properties:
+      DBSubnetGroupDescription: "Created from the RDS Management Console"
+      SubnetIds:
+      - "subnet-0c3c5850a36145c5d"
+      - "subnet-0a2d32c3f544eaf8a"
+      - "subnet-0dd2bed79c7890024"
+      - "subnet-0b1d6164d593dd428"
+      DBSubnetGroupName: "default-vpc-04eeae8bad2c31dbb"
+  EC2VolumeAttachment:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::VolumeAttachment"
+    DeletionPolicy: "Retain"
+    Properties:
+      VolumeId: "vol-0819ef1e8bb7d7ae4"
+      InstanceId: "i-0d7b41d8ab97f824b"
+      Device: "/dev/xvda"
+      EbsCardIndex: 0
+  EC2KeyPairVockey:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::KeyPair"
+    DeletionPolicy: "Retain"
+    Properties:
+      KeyName: "vockey"
+      KeyType: "rsa"
+      PublicKeyMaterial: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDaAfo+1swIM/4uia/VYgYFaLEJPZHV/JWJZcHnnQnn10Z+iSa0y6fOV9bjfHIqBrWzMpgCwjikrM4lLD9hklIteaEs+MqI0F4iRUWJF5fwU0dJ0KNSGZzQ60Z7PKRqRqIhyT19U+6ai/fleFeFnIkd7jVPtkFVVF2pMRt/84pFukOROFQsTmpDKkVHLFX5XKCKJz4d2nfT+XqtkJF7ezvZ0VyFaRYxLNmRRcG5vi+2rE46HxX4Aelj8AkMXQCveeZabHPMbpfrJQCGvrGPonVHPAfkrcl5WbZ/cX69p144Ri4jsgEg64Ph+0sN4YAGJ4jEuTnkGJ+kng7onI1ezAER\
+        \ vockey\n"
+      Tags: []
+  EC2NetworkInterface:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::NetworkInterface"
+    DeletionPolicy: "Retain"
+    Properties:
+      SourceDestCheck: true
+      InterfaceType: "interface"
+      Description: ""
+      PrivateIpAddress: "10.0.3.99"
+      SecondaryPrivateIpAddressCount: 0
+      Ipv6PrefixCount: 0
+      Ipv4Prefixes: []
+      Ipv4PrefixCount: 0
+      GroupSet:
+      - "sg-02096c78033e4e71a"
+      Ipv6Prefixes: []
+      SubnetId: "subnet-0c3c5850a36145c5d"
+      Tags: []
+  EC2SubnetWZ:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::Subnet"
+    DeletionPolicy: "Retain"
+    Properties:
+      MapPublicIpOnLaunch: false
+      EnableDns64: false
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      AvailabilityZoneId: "use1-az2"
+      PrivateDnsNameOptionsOnLaunch:
+        EnableResourceNameDnsARecord: false
+        HostnameType: "ip-name"
+        EnableResourceNameDnsAAAARecord: false
+      AvailabilityZone: "us-east-1a"
+      CidrBlock: "10.0.0.0/20"
+      Ipv6Native: false
+      Tags:
+      - Value: "secure-app-subnet-public1-us-east-1a"
+        Key: "Name"
+  EC2SecurityGroupA3:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::EC2::SecurityGroup"
+    DeletionPolicy: "Retain"
+    Properties:
+      GroupDescription: "Allow MySQL access from EC2 only"
+      GroupName: "rds-sg"
+      VpcId: "vpc-04eeae8bad2c31dbb"
+      SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        FromPort: 3306
+        SourceSecurityGroupId: "sg-02096c78033e4e71a"
+        ToPort: 3306
+        SourceSecurityGroupOwnerId: "912444242923"
+      SecurityGroupEgress:
+      - CidrIp: "0.0.0.0/0"
+        IpProtocol: "-1"
+        FromPort: -1
+        ToPort: -1
+  RDSDBParameterGroupDefaultmysql84:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::RDS::DBParameterGroup"
+    DeletionPolicy: "Retain"
+    Properties:
+      DBParameterGroupName: "default.mysql8.4"
+      Family: "mysql8.4"
+      Description: "Default parameter group for mysql8.4"
+      Parameters: {}
+  CloudWatchAlarmRDSHighCPUAlarm:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::CloudWatch::Alarm"
+    DeletionPolicy: "Retain"
+    Properties:
+      ComparisonOperator: "GreaterThanThreshold"
+      TreatMissingData: "missing"
+      Dimensions:
+      - Value: "secure-app-db"
+        Name: "DBInstanceIdentifier"
+      Period: 300
+      EvaluationPeriods: 1
+      Namespace: "AWS/RDS"
+      OKActions: []
+      AlarmActions: []
+      MetricName: "CPUUtilization"
+      ActionsEnabled: true
+      AlarmName: "RDS-HighCPU-Alarm"
+      Statistic: "Average"
+      InsufficientDataActions: []
+      DatapointsToAlarm: 1
+      Tags: []
+      Threshold: 80
